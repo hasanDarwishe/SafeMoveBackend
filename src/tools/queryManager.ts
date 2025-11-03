@@ -6,11 +6,7 @@ import { UserData } from "../utils/auth";
 const timeoutDefault = 10 as const;
 
 export async function customResultedQuery<T>(query: string, params: unknown[], resultFunction: (result: unknown) => T, timeout: number = timeoutDefault): Promise<T> {
-  const executionQuery = `
-    SET SESSION max_statement_time = ${numberGiver(timeout)};
-    ${query.trim().endsWith(";") ? query.trim().slice(0, query.trim().length-1) : query};
-    SET SESSION max_statement_time = DEFAULT;
-  `;
+  const executionQuery = `/*+ MAX_EXECUTION_TIME(${timeout * 1000}) */ ${query}`;
 
   return await new Promise<T>((resolve, reject) => {
     db.query(
