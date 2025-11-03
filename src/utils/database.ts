@@ -1,11 +1,11 @@
 import mysql2 from "mysql2";
 
 const pool = mysql2.createPool({
-  user: "root",
-  password: "",
-  database: "safeMove",
+  user: "if0_40324273",
+  password: "hasandarwish",
+  database: "if0_40324273_safe_move",
   charset: "utf8mb4",
-  host: "localhost",
+  host: "sql100.infinityfree.com",
   connectTimeout: 10_000,
   multipleStatements: true
 })
