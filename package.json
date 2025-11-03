@@ -1,0 +1,45 @@
+{
+  "name": "safe_move (backend)",
+  "version": "1.0.0",
+  "description": "The backend code of the Flutter app (Safe Move), instead of using the Firebase ecosystem",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsx src/server.ts",
+    "start": "node dist/server.js"
+  },
+  "keywords": [
+    "backend",
+    "database",
+    "management"
+  ],
+  "author": "Hasan Darwish",
+  "license": "MIT",
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
+  "dependencies": {
+    "@better-auth/cli": "^1.3.27",
+    "better-auth": "^1.3.4",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csurf": "^1.11.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "validator": "^13.15.15",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/csurf": "^1.11.5",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
+    "@types/node": "^24.8.1",
+    "@types/ws": "^8.18.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

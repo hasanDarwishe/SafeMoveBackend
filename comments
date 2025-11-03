@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "start": "clear && echo \"Starting...\" && sudo /opt/lampp/lampp start && nodemon src/server.ts"
+  }
+}
