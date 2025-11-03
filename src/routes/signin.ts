@@ -44,7 +44,7 @@ router.post("/signup", async (req, res) => {
     if(password.length < 6) return errorMessager(res, "Your password's length is less than 6 characters, please make it longer.");
 
     // Authenticating user and signing them up:
-    const response = await auth.api.signUpEmail({body: { email, password, name, actor: accountType }, headers: fromNodeHeaders(req.headers), asResponse: true});
+    const response: Response = await auth.api.signUpEmail({body: { email, password, name, actor: accountType }, headers: fromNodeHeaders(req.headers), asResponse: true});
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);
@@ -87,7 +87,7 @@ router.post("/signin", async (req, res) => {
     if(!validator.isEmail(email)) return errorMessager(res, "Email validation failed, please try later.");
 
     // Authenticating user and signing them in:
-    const response = await auth.api.signInEmail({body: { email, password }, headers: fromNodeHeaders(req.headers), asResponse: true});
+    const response: Response = await auth.api.signInEmail({body: { email, password }, headers: fromNodeHeaders(req.headers), asResponse: true});
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);
@@ -134,7 +134,7 @@ router.get("/getUserInfo", async (req, res) => {
 
 router.get("/logout", async (req, res) => {
   try {
-    const response = await auth.api.signOut({headers: fromNodeHeaders(req.headers), query: {disableCookieCache: true}, asResponse: true});
+    const response: Response = await auth.api.signOut({headers: fromNodeHeaders(req.headers), query: {disableCookieCache: true}, asResponse: true});
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);
