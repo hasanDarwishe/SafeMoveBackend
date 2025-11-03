@@ -45,8 +45,10 @@ router.post("/signup", async (req, res) => {
 
     // Authenticating user and signing them up:
     const response = await auth.api.signUpEmail({body: { email, password, name, actor: accountType }, headers: fromNodeHeaders(req.headers), asResponse: true});
-    const setCookieHeader = response.headers.getSetCookie();
-    res.setHeader('Set-Cookie', setCookieHeader);
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader);
+    }
 
     const data = await response.json() as any;
     const {user} = data;
@@ -86,8 +88,10 @@ router.post("/signin", async (req, res) => {
 
     // Authenticating user and signing them in:
     const response = await auth.api.signInEmail({body: { email, password }, headers: fromNodeHeaders(req.headers), asResponse: true});
-    const setCookieHeader = response.headers.getSetCookie();
-    res.setHeader('Set-Cookie', setCookieHeader);
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader);
+    }
 
     const data = await response.json() as any;
     const user = data?.user;
@@ -131,8 +135,10 @@ router.get("/getUserInfo", async (req, res) => {
 router.get("/logout", async (req, res) => {
   try {
     const response = await auth.api.signOut({headers: fromNodeHeaders(req.headers), query: {disableCookieCache: true}, asResponse: true});
-    const setCookieHeader = response.headers.getSetCookie();
-    res.setHeader('Set-Cookie', setCookieHeader);
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader);
+    }
 
     const data = await response.json() as any;
     if(data.success) {
