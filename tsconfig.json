@@ -2,15 +2,15 @@
     "compilerOptions": {
         "target": "esnext",
         "module": "nodenext",
-        "lib": ["ESNext"],
+        "lib": ["ESNext", "DOM"],
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
+        "resolveJsonModule": true
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist", ".env"],
+    "exclude": ["node_modules", "dist", ".env"]
 }
