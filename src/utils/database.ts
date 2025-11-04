@@ -15,7 +15,7 @@ import { Pool } from 'pg'
 
 // Direct PostgreSQL connection
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL_NON_POOLING,
+  connectionString: process.env.POSTGRES_URL_NON_POOLING + "&sslmode=no-verify",
   connectionTimeoutMillis: 10_000,
   ssl: { rejectUnauthorized: false }
 });
