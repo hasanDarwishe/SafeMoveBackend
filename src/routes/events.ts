@@ -114,8 +114,7 @@ app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) 
       acceptvolunteers: eventAcceptsVolunteers,
       description: eventDescription,
       endsat: eventEndsAtDate,
-      name: eventName,
-      createdat: new Date()
+      name: eventName
     });
 
     // Validating each section's data:
