@@ -26,7 +26,7 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
     const eventDescription = stringGiver(data.eventInfo.description);
     if(!eventDescription) return errorMessager(res, "No event description specified");
 
-    const eventAcceptsVolunteers = Boolean(data.eventInfo.acceptVolunteers);
+    const eventAcceptsVolunteers = Boolean(data.eventInfo.acceptvolunteers);
     const eventEndsAt = data.eventInfo.endsAt.trim();
     if(isNaN(new Date(eventEndsAt).getTime())) return errorMessager(res, "Event's end date is not valid");
 
@@ -36,10 +36,10 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
     // Adding the new data:
     const eventData = await eventsManager.createEvent({
       name: eventName,
-      acceptVolunteers: eventAcceptsVolunteers,
+      acceptvolunteers: eventAcceptsVolunteers,
       createdat: new Date(),
       description: eventDescription,
-      endsAt: eventEndsAtDate,
+      endsat: eventEndsAtDate,
       organizer: userData.id,
     });
 
@@ -102,7 +102,7 @@ app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) 
     const eventDescription = stringGiver(data.eventInfo.description);
     if(!eventDescription) return errorMessager(res, "No event description specified");
 
-    const eventAcceptsVolunteers = Boolean(data.eventInfo.acceptVolunteers);
+    const eventAcceptsVolunteers = Boolean(data.eventInfo.acceptvolunteers);
     const eventEndsAt = data.eventInfo.endsAt.trim();
     if(isNaN(new Date(eventEndsAt).getTime())) return errorMessager(res, "Event's end date is not valid");
 
@@ -111,10 +111,11 @@ app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) 
 
     // Updating the event's data:
     await eventsManager.updateEvent(eventId, {
-      acceptVolunteers: eventAcceptsVolunteers,
+      acceptvolunteers: eventAcceptsVolunteers,
       description: eventDescription,
-      endsAt: eventEndsAtDate,
+      endsat: eventEndsAtDate,
       name: eventName,
+      createdat: new Date()
     });
 
     // Validating each section's data:
@@ -239,7 +240,7 @@ app.post("/requestVolunteering", authenticationMiddleware(["volunteer"]), async 
 
     const fetchedEvent = await eventsManager.getEvent(eventId);
     if(!fetchedEvent.length) return errorMessager(res, "The event provided does not exist");
-    if(!fetchedEvent[0].acceptVolunteers) return errorMessager(res, "The event doesn't accept volunteers");
+    if(!fetchedEvent[0].acceptvolunteers) return errorMessager(res, "The event doesn't accept volunteers");
 
     const requestedBefore = await eventsManager.checkIsRequested(userId);
     if(requestedBefore) return errorMessager(res, "You cannot request again", 401);
