@@ -90,7 +90,7 @@ export const eventsColumns = `
   events.id AS "eventId",
   events.name AS "eventName",
   events.description AS "eventDescription",
-  events."createdAt" AS "eventCreatedAt",
+  events."createdat" AS "eventCreatedAt",
   events."endsAt" AS "eventEndsAt",
   events.organizer AS "eventOrganiser",
   events."acceptVolunteers" AS "eventAcceptVolunteers",
