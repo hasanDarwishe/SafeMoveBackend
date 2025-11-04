@@ -1,14 +1,24 @@
 import mysql2 from "mysql2";
 
+// const pool = mysql2.createPool({
+//   user: "if0_40324273",
+//   password: "hasandarwish",
+//   database: "if0_40324273_safe_move",
+//   charset: "utf8mb4",
+//   host: "sql100.infinityfree.com",
+//   connectTimeout: 10_000,
+//   multipleStatements: true
+// })
+
 const pool = mysql2.createPool({
-  user: "if0_40324273",
-  password: "hasandarwish",
-  database: "if0_40324273_safe_move",
+  user: "root",
+  password: "",
+  database: "safeMove",
   charset: "utf8mb4",
-  host: "sql100.infinityfree.com",
+  host: "localhost",
   connectTimeout: 10_000,
   multipleStatements: true
-})
+});
 
 // connection.connect((err) => {
 //   if(err) {
