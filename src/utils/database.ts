@@ -1,7 +1,4 @@
 // import mysql2 from "mysql2";
-// import { createClient } from '@supabase/supabase-js'
-
-// const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
 
 // const pool = mysql2.createPool({
 //   user: "root",
@@ -30,5 +27,20 @@ pool.on("connect", (client) => {
 pool.on('error', (err) => {
   console.error('Database pool error:', err);
 });
+
+// Test connection on startup (optional but recommended)
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT version()');
+    console.log('✅ Connected to Supabase PostgreSQL successfully!');
+    console.log('PostgreSQL version:', result.rows[0].version);
+    client.release();
+  } catch (error) {
+    console.error('❌ Failed to connect to database:', error);
+  }
+};
+
+testConnection();
 
 export default pool;
