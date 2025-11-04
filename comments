@@ -1,5 +1,15 @@
-{
-  "scripts": {
-    "start": "clear && echo \"Starting...\" && sudo /opt/lampp/lampp start && nodemon src/server.ts"
+[
+  {
+    "scripts": {
+      "start": "clear && echo \"Starting...\" && sudo /opt/lampp/lampp start && nodemon src/server.ts"
+    }
+  },
+
+  {
+    "scripts": {
+      "dev": "tsx src/server.ts",
+      "build": "tsc",
+      "start": "node dist/server.js"
+    }
   }
-}
+]

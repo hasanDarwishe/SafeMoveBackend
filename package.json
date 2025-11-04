@@ -4,9 +4,7 @@
   "description": "The backend code of the Flutter app (Safe Move), instead of using the Firebase ecosystem",
   "main": "index.ts",
   "scripts": {
-    "dev": "tsx src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "clear && echo \"Starting...\" && sudo /opt/lampp/lampp start && nodemon src/server.ts"
   },
   "keywords": [
     "backend",
