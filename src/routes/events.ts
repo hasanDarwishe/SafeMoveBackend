@@ -77,7 +77,7 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
 });
 
 // Editing an event
-app.get("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) => {
+app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) => {
   interface RequestBody {
     eventInfo: Omit<EventInfo, "endsAt" | "createdAt"> & {endsAt: string};
     sections : (Omit<SectionInfo, "event"> & {id?: string | number})[];
