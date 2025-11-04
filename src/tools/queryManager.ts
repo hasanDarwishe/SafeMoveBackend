@@ -5,10 +5,7 @@ const timeoutDefault = 10 as const;
 
 export async function customResultedQuery<T>(query: string, params: unknown[], resultFunction: (result: unknown) => T, timeout: number = timeoutDefault): Promise<T> {
   // PostgreSQL uses different timeout syntax
-  const executionQuery = `
-    SET statement_timeout = ${numberGiver(timeout * 1000)}; -- PostgreSQL uses milliseconds
-    ${query.trim().endsWith(";") ? query.trim() : query + ";"}
-  `;
+  const executionQuery = query;
 
   try {
     const result = await db.query(executionQuery, params);

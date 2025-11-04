@@ -17,11 +17,12 @@ import { Pool } from 'pg'
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL_NON_POOLING + "&sslmode=no-verify",
   connectionTimeoutMillis: 10_000,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  statement_timeout: 10_000
 });
 
 pool.on("connect", (client) => {
-  console.log(client);
+  console.log("Connected to database successfully!");
 });
 
 pool.on('error', (err) => {
