@@ -1,4 +1,7 @@
 import mysql2 from "mysql2";
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
 
 // const pool = mysql2.createPool({
 //   user: "if0_40324273",
