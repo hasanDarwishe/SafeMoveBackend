@@ -64,7 +64,6 @@ app.use("/", signinRoute);
 app.use("/events", eventsRoute);
 app.use("/admin", adminsRoute);
 app.use("/chats", chatsRoute);
-// app.use("/convertTo", convertRoute);
 
 interface ErrorType {
   id?: number,

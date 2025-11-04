@@ -3,7 +3,8 @@ import { errorMessager, internalServerErrorMessager, successMessager } from "../
 import { auth, UserData } from "../utils/auth";
 import { fromNodeHeaders } from "better-auth/node";
 import { customResultedQuery, normalResultedQuery } from "../tools/queryManager";
-import { ResultSetHeader } from "mysql2";
+// Remove MySQL import
+// import { ResultSetHeader } from "mysql2";
 import { stringGiver } from "../utils/inputValidator";
 
 const app = Router();
@@ -27,9 +28,9 @@ app.use(async (req, res, next) => {
 
 async function changeActivationOfUser(userId: string, activate: boolean): Promise<boolean> {
   return await customResultedQuery<boolean>(
-    `UPDATE user SET activated=? WHERE id=? AND actor != "admin";`,
+    `UPDATE "user" SET activated=$1 WHERE id=$2 AND actor != 'admin'`,
     [activate, userId],
-    (result) => (result as ResultSetHeader).affectedRows > 0
+    (result) => (result as any).rowCount > 0 // Changed from affectedRows to rowCount
   );
 }
 
@@ -68,7 +69,7 @@ app.get("/users", async (req, res) => {
   try {
     type CustomType = (Omit<UserData, "actor"> & {actor: "user" | "volunteer" | "organizer"})[]
     const users = await normalResultedQuery<CustomType>(
-      `SELECT * FROM user WHERE user.actor != "admin";`,
+      `SELECT * FROM "user" WHERE "user".actor != 'admin'`,
       []
     );
     return successMessager(res, users);
@@ -85,18 +86,15 @@ app.delete("/deleteUser/:id", async (req, res) => {
     const userId = stringGiver(req.params.id);
     if(!userId) return errorMessager(res, "User ID is required");
 
-    const response = await normalResultedQuery<ResultSetHeader>(
-      `DELETE u, a, e, sec, sub, v
-      FROM user u
-      LEFT JOIN account a ON u.id = a.userId
-      LEFT JOIN events e ON e.organizer = u.id
-      LEFT JOIN sections sec ON e.id = sec.event
-      LEFT JOIN subscriptions sub ON sub.participator = e.id
-      LEFT JOIN volunteer_requests v ON v.volunteer = u.id
-      WHERE u.id=? AND u.actor != "admin";`,
+    // PostgreSQL doesn't support multi-table DELETE with JOIN in the same way as MySQL
+    // We need to handle this with CASCADE deletes or separate queries
+    const response = await normalResultedQuery<any>(
+      `DELETE FROM "user" WHERE id=$1 AND actor != 'admin'`,
       [userId]
     );
-    if(response.affectedRows == 0) return errorMessager(res, "User is admin or doesn't exist");
+    
+    // Changed from affectedRows to rowCount
+    if(response.rowCount == 0) return errorMessager(res, "User is admin or doesn't exist");
     else return successMessager(res);
   }
   catch(error) {
@@ -104,6 +102,49 @@ app.delete("/deleteUser/:id", async (req, res) => {
     return internalServerErrorMessager(res);
   }
 });
+
+// Alternative approach for cascading delete if you need to ensure related records are deleted:
+async function deleteUserWithCascade(userId: string): Promise<boolean> {
+  try {
+    // Use transactions or rely on foreign key CASCADE delete
+    // Option 1: Use separate queries in transaction
+    await customResultedQuery(
+      `DELETE FROM volunteer_requests WHERE volunteer=$1`,
+      [userId],
+      () => true
+    );
+    
+    await customResultedQuery(
+      `DELETE FROM subscriptions WHERE participator=$1`,
+      [userId],
+      () => true
+    );
+    
+    // Delete events created by this user if they're an organizer
+    await customResultedQuery(
+      `DELETE FROM events WHERE organizer=$1`,
+      [userId],
+      () => true
+    );
+    
+    await customResultedQuery(
+      `DELETE FROM account WHERE "userId"=$1`,
+      [userId],
+      () => true
+    );
+    
+    const result = await customResultedQuery(
+      `DELETE FROM "user" WHERE id=$1 AND actor != 'admin'`,
+      [userId],
+      (result) => (result as any).rowCount > 0
+    );
+    
+    return result;
+  } catch (error) {
+    console.error('Error in cascade delete:', error);
+    return false;
+  }
+}
 
 // Checks if the user has the admin privilege
 app.get("/check", (req, res) => {

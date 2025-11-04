@@ -1,29 +1,23 @@
-import { RowDataPacket } from "mysql2";
 import db from "../utils/database";
 import { numberGiver } from "../utils/inputValidator";
 
 const timeoutDefault = 10 as const;
 
 export async function customResultedQuery<T>(query: string, params: unknown[], resultFunction: (result: unknown) => T, timeout: number = timeoutDefault): Promise<T> {
+  // PostgreSQL uses different timeout syntax
   const executionQuery = `
-    SET SESSION max_statement_time = ${numberGiver(timeout)};
-    ${query.trim().endsWith(";") ? query.trim().slice(0, query.trim().length-1) : query};
-    SET SESSION max_statement_time = DEFAULT;
+    SET statement_timeout = ${numberGiver(timeout * 1000)}; -- PostgreSQL uses milliseconds
+    ${query.trim().endsWith(";") ? query.trim() : query + ";"}
   `;
 
-  return await new Promise<T>((resolve, reject) => {
-    db.query(
-      executionQuery,
-      params,
-      (err, results) => {
-        if(err) reject(err);
-        else {
-          const actualResult = Array.isArray(results) ? results[1] : results;
-          resolve(resultFunction(actualResult));
-        }
-      },
-    );
-  });
+  try {
+    const result = await db.query(executionQuery, params);
+    // PostgreSQL returns a Result object, not an array
+    const actualResult = result.rows || result;
+    return resultFunction(actualResult);
+  } catch (err) {
+    throw err;
+  }
 }
 
 export async function normalResultedQuery<T>(query: string, params: unknown[], timeout: number = timeoutDefault): Promise<T> {
@@ -40,7 +34,7 @@ export type EventInfo = {
   organiserName: string;
 }
 
-export type EventResult = EventInfo & RowDataPacket & {id: number};
+export type EventResult = EventInfo & {id: number}; // Removed RowDataPacket
 
 export type SectionInfo = {
   event: number;
@@ -50,7 +44,7 @@ export type SectionInfo = {
   subscriptions: number;
 }
 
-export type SectionResult = SectionInfo & RowDataPacket & {id: number};
+export type SectionResult = SectionInfo & {id: number}; // Removed RowDataPacket
 
 export type VolunteeringRequestInfo = {
   event: number;
@@ -60,7 +54,7 @@ export type VolunteeringRequestInfo = {
   description: string;
 }
 
-export type VolunteeringRequestResult = VolunteeringRequestInfo & RowDataPacket & {id: number;};
+export type VolunteeringRequestResult = VolunteeringRequestInfo & {id: number;}; // Removed RowDataPacket
 export type VolunteeringRequestResultWithEventQuery = VolunteeringRequestResult & {
   eventId: number;
   eventName: string;
@@ -79,7 +73,7 @@ export type SubscriptionsInfo = {
   participator: string;
   date: Date;
 }
-export type SubscriptionsResult = SubscriptionsInfo & RowDataPacket & {id: number;};
+export type SubscriptionsResult = SubscriptionsInfo & {id: number;}; // Removed RowDataPacket
 
 export type UserSubscriptions = {
   event: EventResult;
@@ -91,19 +85,19 @@ export type EventsWithTheirSectionsResult = EventInfo & {
   sections: (SectionInfo & {id: number;})[],
   id: number
 }
-export type GetEventsAndSectionsQueryType = SectionsColumnsType & EventsColumnsType & RowDataPacket;
+export type GetEventsAndSectionsQueryType = SectionsColumnsType & EventsColumnsType; // Removed RowDataPacket
 
 // Ready-to-use query constants:
 
 export const eventsColumns = `
-  events.id AS eventId,
-  events.name AS eventName,
-  events.description AS eventDescription,
-  events.createdAt AS eventCreatedAt,
-  events.endsAt AS eventEndsAt,
-  events.organizer AS eventOrganiser,
-  events.acceptVolunteers AS eventAcceptVolunteers,
-  (SELECT name FROM user WHERE user.id = events.organizer) AS organiserName
+  events.id AS "eventId",
+  events.name AS "eventName",
+  events.description AS "eventDescription",
+  events."createdAt" AS "eventCreatedAt",
+  events."endsAt" AS "eventEndsAt",
+  events.organizer AS "eventOrganiser",
+  events."acceptVolunteers" AS "eventAcceptVolunteers",
+  (SELECT name FROM "user" WHERE "user".id = events.organizer) AS "organiserName"
 `;
 
 export interface EventsColumnsType {
@@ -118,12 +112,12 @@ export interface EventsColumnsType {
 }
 
 export const sectionsColumns = `
-  sections.id AS sectionId,
-  sections.event AS sectionEvent,
-  sections.name AS sectionName,
-  sections.description AS sectionDescription,
-  sections.maxSubscribers AS sectionMaxSubscribers,
-  (SELECT COUNT(subscriptions.id) FROM subscriptions WHERE subscriptions.section = sections.id) AS sectionSubscriptions
+  sections.id AS "sectionId",
+  sections.event AS "sectionEvent",
+  sections.name AS "sectionName",
+  sections.description AS "sectionDescription",
+  sections."maxSubscribers" AS "sectionMaxSubscribers",
+  (SELECT COUNT(subscriptions.id) FROM subscriptions WHERE subscriptions.section = sections.id) AS "sectionSubscriptions"
 `;
 
 export interface SectionsColumnsType {
@@ -139,13 +133,13 @@ export const queries = {
   events: {
     baseColumns: `
       events.*,
-      user.name AS organiserName
+      "user".name AS "organiserName"
     `,
     baseFrom: `
       FROM events
-      INNER JOIN user ON user.id = events.organizer
+      INNER JOIN "user" ON "user".id = events.organizer
     `,
-    insertColumns: `name, description, createdAt, organizer, endsAt, acceptVolunteers`,
+    insertColumns: `name, description, "createdAt", organizer, "endsAt", "acceptVolunteers"`, // Quoted reserved words
   },
   sections: {
     baseColumns: `
@@ -159,21 +153,21 @@ export const queries = {
       FROM sections
       INNER JOIN events ON sections.event = events.id
     `,
-    insertColumns: `name, description, event, maxSubscribers`,
+    insertColumns: `name, description, event, "maxSubscribers"`, // Quoted reserved words
   },
   volunteer_requests: {
     insertColumns: `event, volunteer, date, verified, description`,
     baseColumns: `
       volunteer_requests.*,
       ${eventsColumns},
-      organiser_user.name AS organiserName,
-      volunteer_user.name AS volunteerName
+      organiser_user.name AS "organiserName",
+      volunteer_user.name AS "volunteerName"
     `,
     baseFrom: `
       FROM volunteer_requests
       INNER JOIN events ON volunteer_requests.event = events.id
-      INNER JOIN user AS organiser_user ON events.organizer = organiser_user.id
-      INNER JOIN user AS volunteer_user ON volunteer_requests.volunteer = volunteer_user.id
+      INNER JOIN "user" AS organiser_user ON events.organizer = organiser_user.id
+      INNER JOIN "user" AS volunteer_user ON volunteer_requests.volunteer = volunteer_user.id
     `,
   },
   subscriptions: {
@@ -182,7 +176,7 @@ export const queries = {
       subscriptions.*,
       ${eventsColumns},
       ${sectionsColumns},
-      (SELECT COUNT(*) FROM subscriptions WHERE participator = subscriptions.participator AND section=sections.id) AS isSubscribed
+      (SELECT COUNT(*) FROM subscriptions WHERE participator = subscriptions.participator AND section=sections.id) AS "isSubscribed"
     `,
     selectWithSectionAndEventsFrom: `
       FROM subscriptions
@@ -202,12 +196,12 @@ export const queries = {
   },
   user: {
     baseColumns: `
-      user.id,
-      user.name,
-      user.email,
-      user.actor,
-      user.createdAt,
-      user.activated
+      "user".id,
+      "user".name,
+      "user".email,
+      "user".actor,
+      "user"."createdAt",
+      "user".activated
     `
   }
 } as const;
@@ -215,11 +209,21 @@ export const queries = {
 export const getQuestionMarks = (string: string): string => {
   return string
   .split(",")
-  .map((_) => "?")
+  .map((_, index) => `$${index + 1}`) // PostgreSQL uses $1, $2, $3 instead of ?
   .join(", ")
   ;
 }
 
 export const columnsToUpdate = (columns: string[]): string => {
-  return columns.map((column) => `${column}=?`).join(", ");
+  return columns.map((column, index) => `${column}=$${index + 1}`).join(", "); // PostgreSQL uses $1, $2, $3
+}
+
+// New helper for PostgreSQL since it returns different result structure
+export const extractRows = (result: any): any[] => {
+  return result.rows || result;
+}
+
+export const extractFirstRow = (result: any): any => {
+  const rows = extractRows(result);
+  return rows[0] || null;
 }

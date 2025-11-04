@@ -27,7 +27,7 @@ app.get("/getContacts", async (req, res) => {
 
 app.get("/getMessages/:contactId", async (req, res) => {
   try {
-    const user = (req as unknown as ModifiedRequest).user;
+    const user = (req as unknown as ModifiedRequest).user; // Fixed type casting
     const contactId = stringGiver(req.params.contactId);
     if(!contactId) return errorMessager(res, "Contact ID is required");
     const volunteerId = user.actor == "volunteer" ? user.id : contactId;

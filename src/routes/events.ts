@@ -44,7 +44,10 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
     });
 
     // Validating each section's data:
-    const eventId = eventData!.insertId;
+    // PostgreSQL returns the inserted row, not insertId
+    const eventId = eventData.rows[0]?.id;
+    if (!eventId) return errorMessager(res, "Failed to create event");
+
     for(const section of data.sections) {
       const sectionName = stringGiver(section.name);
       if(!sectionName) return errorMessager(res, "There's a section with an invalid or empty name, please double-check");
@@ -128,7 +131,12 @@ app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) 
 
       const sectionId = numberGiver(section.id);
       if(section.id && !sectionId) return errorMessager(res, "Invalid section ID");
-      const fetchedSection = await eventsManager.getSection(sectionId!);
+      
+      // Check if section exists
+      let fetchedSection: SectionInfo[] = [];
+      if (sectionId) {
+        fetchedSection = await eventsManager.getSection(sectionId);
+      }
 
       // Adding a new section:
       if(!fetchedSection.length) {
@@ -139,7 +147,11 @@ app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) 
           name: sectionName,
           subscriptions: 0,
         });
-        existingSectionsIds.push(newCreatedSection.insertId);
+        // PostgreSQL returns the inserted row
+        const newSectionId = newCreatedSection.rows[0]?.id;
+        if (newSectionId) {
+          existingSectionsIds.push(newSectionId);
+        }
       }
       // Updating an existing section:
       else {
@@ -303,7 +315,8 @@ app.delete("/volunteers/requests/delete/:id", authenticationMiddleware(["organiz
     if(!id) return errorMessager(res, "ID of the request is required");
     
     const response = await eventsManager.deleteVolunteeringRequest(id, (req as ModifiedRequest).user.id);
-    if(response.affectedRows === 0) return errorMessager(res, "Request unavailable, or unauthorized");
+    // Changed from affectedRows to rowCount
+    if(response.rowCount === 0) return errorMessager(res, "Request unavailable, or unauthorized");
     else return successMessager(res);
   }
   catch(error) {
@@ -319,7 +332,8 @@ app.get("/volunteers/requests/confirm/:id", authenticationMiddleware(["organizer
     if(!id) return errorMessager(res, "ID of the request is required");
 
     const response = await eventsManager.confirmVolunteeringRequest(id, (req as ModifiedRequest).user.id);
-    if(response.affectedRows === 0) return errorMessager(res, "Request unavailable, or unauthorized");
+    // Changed from affectedRows to rowCount
+    if(response.rowCount === 0) return errorMessager(res, "Request unavailable, or unauthorized");
     else return successMessager(res);
   }
   catch(error) {
@@ -335,7 +349,8 @@ app.get("/volunteers/requests/unconfirm/:id", authenticationMiddleware(["organiz
     if(!id) return errorMessager(res, "ID of the request is required");
 
     const response = await eventsManager.confirmVolunteeringRequest(id, (req as ModifiedRequest).user.id, true);
-    if(response.affectedRows === 0) return errorMessager(res, "Request unavailable, or unauthorized");
+    // Changed from affectedRows to rowCount
+    if(response.rowCount === 0) return errorMessager(res, "Request unavailable, or unauthorized");
     else return successMessager(res);
   }
   catch(error) {
@@ -452,7 +467,8 @@ app.delete("/subscribers/:eventId/kick/:userId", authenticationMiddleware(["orga
     const userId = stringGiver(req.params.userId);
     if(!userId) return errorMessager(res, "User ID is required");
     const isKicked = await eventsManager.kickSubscriber(eventId, (req as ModifiedRequest).user.id, userId);
-    if(isKicked.affectedRows == 0) return errorMessager(res, "User doesn't exist, or already kicked");
+    // Changed from affectedRows to rowCount
+    if(isKicked.rowCount == 0) return errorMessager(res, "User doesn't exist, or already kicked");
     return successMessager(res);
   }
   catch(error) {

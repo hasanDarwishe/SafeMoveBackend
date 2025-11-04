@@ -1,15 +1,13 @@
 import { betterAuth, BetterAuthOptions, InferUser, User } from "better-auth";
 import { configDotenv } from "dotenv";
-import { createPool } from "mysql2/promise";
+import { Pool } from "pg"; // Changed from mysql2/promise to pg
 
 configDotenv();
 
 export const auth = betterAuth({
-  database: createPool({
-    user: "root",
-    password: "",
-    database: "safeMove",
-    host: "localhost",
+  database: new Pool({
+    connectionString: process.env.SUPABASE_DB_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   }),
   emailAndPassword: {
     enabled: true,
@@ -21,11 +19,13 @@ export const auth = betterAuth({
     additionalFields: {
       actor: {
         type: "string",
-        required: false
+        required: false,
+        defaultValue: "user" // Add default value
       },
       activated: {
         type: "boolean",
         required: false,
+        defaultValue: true // Add default value
       }
     },
   }

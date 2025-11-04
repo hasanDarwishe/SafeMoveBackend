@@ -1,6 +1,14 @@
-import { ResultSetHeader } from "mysql2";
+// Remove MySQL import
+// import { ResultSetHeader } from "mysql2";
 import { MessageType } from "./roomsWebsocketManager";
 import { getQuestionMarks, normalResultedQuery } from "./queryManager";
+
+// PostgreSQL query result interface
+interface QueryResult {
+  rowCount: number;
+  rows: any[];
+  command: string;
+}
 
 interface MessagesResults {
   id: number;
@@ -17,24 +25,24 @@ export interface Contact {
 }
 
 const contactColumns = `
-  user.name,
-  user.id AS userId
+  "user".name,
+  "user".id AS "userId"
 `
 
 export class MessagesDatabaseManager {
   private columnsToInsert = "message, time, volunteer, organiser, sender";
 
-  async addMessage(message: MessageType, volunteer: string, organiser: string, sender: string): Promise<ResultSetHeader> {
+  async addMessage(message: MessageType, volunteer: string, organiser: string, sender: string): Promise<QueryResult> {
     const now = new Date();
-    return await normalResultedQuery<ResultSetHeader>(
-      `INSERT INTO messages(${this.columnsToInsert}) VALUES(${getQuestionMarks(this.columnsToInsert)});`,
+    return await normalResultedQuery<QueryResult>(
+      `INSERT INTO messages(${this.columnsToInsert}) VALUES(${getQuestionMarks(this.columnsToInsert)})`,
       [message.message, now, volunteer, organiser, sender]
     );
   }
 
   async getMessages(volunteer: string, organiser: string): Promise<MessagesResults[]> {
     return await normalResultedQuery<MessagesResults[]>(
-      `SELECT * FROM messages WHERE organiser = ? AND volunteer = ?;`,
+      `SELECT * FROM messages WHERE organiser = $1 AND volunteer = $2`,
       [organiser, volunteer]
     );
   }
@@ -46,8 +54,8 @@ export class MessagesDatabaseManager {
       ${contactColumns}
       FROM volunteer_requests vr
       INNER JOIN events ON vr.event = events.id
-      INNER JOIN user ON events.organizer = user.id
-      WHERE vr.volunteer = ? AND vr.verified = TRUE AND user.actor = "organizer" AND events.endsAt > ?;`,
+      INNER JOIN "user" ON events.organizer = "user".id
+      WHERE vr.volunteer = $1 AND vr.verified = TRUE AND "user".actor = 'organizer' AND events."endsAt" > $2`,
       [volunteer, now]
     );
   }
@@ -59,8 +67,8 @@ export class MessagesDatabaseManager {
       ${contactColumns}
       FROM volunteer_requests vr
       INNER JOIN events ON vr.event = events.id
-      INNER JOIN user ON vr.volunteer = user.id
-      WHERE events.organizer = ? AND vr.verified = TRUE AND user.actor = "volunteer" AND events.endsAt > ?;`,
+      INNER JOIN "user" ON vr.volunteer = "user".id
+      WHERE events.organizer = $1 AND vr.verified = TRUE AND "user".actor = 'volunteer' AND events."endsAt" > $2`,
       [organiser, now]
     );
   }
