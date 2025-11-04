@@ -88,13 +88,10 @@ app.delete("/deleteUser/:id", async (req, res) => {
 
     // PostgreSQL doesn't support multi-table DELETE with JOIN in the same way as MySQL
     // We need to handle this with CASCADE deletes or separate queries
-    const response = await normalResultedQuery<any>(
-      `DELETE FROM "user" WHERE id=$1 AND actor != 'admin'`,
-      [userId]
-    );
+    const response = await deleteUserWithCascade(userId);
     
     // Changed from affectedRows to rowCount
-    if(response.rowCount == 0) return errorMessager(res, "User is admin or doesn't exist");
+    if(!response) return errorMessager(res, "User is admin or doesn't exist");
     else return successMessager(res);
   }
   catch(error) {

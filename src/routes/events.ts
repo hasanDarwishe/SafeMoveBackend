@@ -37,7 +37,7 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
     const eventData = await eventsManager.createEvent({
       name: eventName,
       acceptVolunteers: eventAcceptsVolunteers,
-      createdAt: new Date(),
+      createdat: new Date(),
       description: eventDescription,
       endsAt: eventEndsAtDate,
       organizer: userData.id,
@@ -82,7 +82,7 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
 // Editing an event
 app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) => {
   interface RequestBody {
-    eventInfo: Omit<EventInfo, "endsAt" | "createdAt"> & {endsAt: string};
+    eventInfo: Omit<EventInfo, "endsAt" | "createdat"> & {endsAt: string};
     sections : (Omit<SectionInfo, "event"> & {id?: string | number})[];
   };
 

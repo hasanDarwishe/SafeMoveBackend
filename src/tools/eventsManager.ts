@@ -42,10 +42,10 @@ class EventsManager {
     for(const result of resultsArray) {
       if(!eventsMap.get(result.eventId)) {
         eventsMap.set(result.eventId, {
-          acceptVolunteers: result.eventAcceptVolunteers,
-          createdAt: result.eventCreatedAt,
+          acceptvolunteers: result.eventAcceptVolunteers,
+          createdat: result.eventCreatedAt,
           description: result.eventDescription,
-          endsAt: result.eventEndsAt,
+          endsat: result.eventEndsAt,
           id: result.eventId,
           name: result.eventName,
           organiserName: result.organiserName,
@@ -79,7 +79,7 @@ class EventsManager {
   async createEvent(info: Omit<EventInfo, "organiserName">): Promise<QueryResult> {
     return await normalResultedQuery<QueryResult>(
       `INSERT INTO events(${queries.events.insertColumns}) VALUES(${getQuestionMarks(queries.events.insertColumns)})`,
-      [info.name, info.description, info.createdAt, info.organizer, info.endsAt, info.acceptVolunteers]
+      [info.name, info.description, info.createdat, info.organizer, info.endsat, info.acceptvolunteers]
     );
   }
 
@@ -173,7 +173,7 @@ class EventsManager {
   async updateEvent(eventId: string|number, eventInfo: Omit<EventInfo, "organizer" | "createdAt" | "organiserName">): Promise<QueryResult> {
     return await normalResultedQuery<QueryResult>(
       `UPDATE events SET ${columnsToUpdate(["name", "description", "endsAt", "acceptVolunteers"])} WHERE id=$${["name", "description", "endsAt", "acceptVolunteers"].length + 1}`,
-      [eventInfo.name, eventInfo.description, eventInfo.endsAt, eventInfo.acceptVolunteers, eventId]
+      [eventInfo.name, eventInfo.description, eventInfo.endsat, eventInfo.acceptvolunteers, eventId]
     );
   }
 
@@ -246,10 +246,10 @@ class EventsManager {
             date: value.date,
             description: value.description,
             event: {
-              acceptVolunteers: value.eventAcceptVolunteers,
-              createdAt: value.eventCreatedAt,
+              acceptvolunteers: value.eventAcceptVolunteers,
+              createdat: value.eventCreatedAt,
               description: value.eventDescription,
-              endsAt: value.eventEndsAt,
+              endsat: value.eventEndsAt,
               id: value.eventId,
               name: value.eventName,
               organiserName: value.organiserName,
@@ -279,10 +279,10 @@ class EventsManager {
             date: value.date,
             description: value.description,
             event: {
-              acceptVolunteers: value.eventAcceptVolunteers,
-              createdAt: value.eventCreatedAt,
+              acceptvolunteers: value.eventAcceptVolunteers,
+              createdat: value.eventCreatedAt,
               description: value.eventDescription,
-              endsAt: value.eventEndsAt,
+              endsat: value.eventEndsAt,
               id: value.eventId,
               name: value.eventName,
               organiserName: value.organiserName,
@@ -403,10 +403,10 @@ class EventsManager {
           return {
             date: value.date,
             event: {
-              acceptVolunteers: value.eventAcceptVolunteers,
-              createdAt: value.eventCreatedAt,
+              acceptvolunteers: value.eventAcceptVolunteers,
+              createdat: value.eventCreatedAt,
               description: value.eventDescription,
-              endsAt: value.eventEndsAt,
+              endsat: value.eventEndsAt,
               id: value.eventId,
               name: value.eventName,
               organiserName: value.organiserName,

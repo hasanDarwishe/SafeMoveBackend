@@ -1,5 +1,4 @@
 import db from "../utils/database";
-import { numberGiver } from "../utils/inputValidator";
 
 const timeoutDefault = 10 as const;
 
@@ -24,10 +23,10 @@ export async function normalResultedQuery<T>(query: string, params: unknown[], t
 export type EventInfo = {
   name: string;
   description: string;
-  createdAt: Date;
+  createdat: Date;
   organizer: string;
-  endsAt: Date;
-  acceptVolunteers: boolean;
+  endsat: Date;
+  acceptvolunteers: boolean;
   organiserName: string;
 }
 
@@ -90,10 +89,10 @@ export const eventsColumns = `
   events.id AS "eventId",
   events.name AS "eventName",
   events.description AS "eventDescription",
-  events."createdat" AS "eventCreatedAt",
-  events."endsAt" AS "eventEndsAt",
+  events."createdAt" AS "eventCreatedAt",
+  events."endsat" AS "eventEndsAt",
   events.organizer AS "eventOrganiser",
-  events."acceptVolunteers" AS "eventAcceptVolunteers",
+  events."acceptvolunteers" AS "eventAcceptVolunteers",
   (SELECT name FROM "user" WHERE "user".id = events.organizer) AS "organiserName"
 `;
 
@@ -113,7 +112,7 @@ export const sectionsColumns = `
   sections.event AS "sectionEvent",
   sections.name AS "sectionName",
   sections.description AS "sectionDescription",
-  sections."maxSubscribers" AS "sectionMaxSubscribers",
+  sections."maxsubscribers" AS "sectionMaxSubscribers",
   (SELECT COUNT(subscriptions.id) FROM subscriptions WHERE subscriptions.section = sections.id) AS "sectionSubscriptions"
 `;
 
@@ -136,7 +135,7 @@ export const queries = {
       FROM events
       INNER JOIN "user" ON "user".id = events.organizer
     `,
-    insertColumns: `name, description, "createdAt", organizer, "endsAt", "acceptVolunteers"`, // Quoted reserved words
+    insertColumns: `name, description, "createdat", organizer, "endsAt", "acceptvolunteers"`, // Quoted reserved words
   },
   sections: {
     baseColumns: `
@@ -150,7 +149,7 @@ export const queries = {
       FROM sections
       INNER JOIN events ON sections.event = events.id
     `,
-    insertColumns: `name, description, event, "maxSubscribers"`, // Quoted reserved words
+    insertColumns: `name, description, event, "maxsubscribers"`, // Quoted reserved words
   },
   volunteer_requests: {
     insertColumns: `event, volunteer, date, verified, description`,
