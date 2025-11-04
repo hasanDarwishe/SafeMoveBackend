@@ -89,7 +89,7 @@ export const eventsColumns = `
   events.id AS "eventId",
   events.name AS "eventName",
   events.description AS "eventDescription",
-  events."createdAt" AS "eventCreatedAt",
+  events."createdat" AS "eventCreatedAt",
   events."endsat" AS "eventEndsAt",
   events.organizer AS "eventOrganiser",
   events."acceptvolunteers" AS "eventAcceptVolunteers",
@@ -135,7 +135,7 @@ export const queries = {
       FROM events
       INNER JOIN "user" ON "user".id = events.organizer
     `,
-    insertColumns: `name, description, "createdat", organizer, "endsAt", "acceptvolunteers"`, // Quoted reserved words
+    insertColumns: `name, description, "createdat", organizer, "endsat", "acceptvolunteers"`, // Quoted reserved words
   },
   sections: {
     baseColumns: `
@@ -196,7 +196,7 @@ export const queries = {
       "user".name,
       "user".email,
       "user".actor,
-      "user"."createdAt",
+      "user"."createdat",
       "user".activated
     `
   }

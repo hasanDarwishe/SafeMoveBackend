@@ -170,9 +170,9 @@ class EventsManager {
     return await normalResultedQuery<QueryResult>(`DELETE FROM sections WHERE id=$1`, [sectionId]);
   }
 
-  async updateEvent(eventId: string|number, eventInfo: Omit<EventInfo, "organizer" | "createdAt" | "organiserName">): Promise<QueryResult> {
+  async updateEvent(eventId: string|number, eventInfo: Omit<EventInfo, "organizer" | "createdat" | "organiserName">): Promise<QueryResult> {
     return await normalResultedQuery<QueryResult>(
-      `UPDATE events SET ${columnsToUpdate(["name", "description", "endsAt", "acceptVolunteers"])} WHERE id=$${["name", "description", "endsAt", "acceptVolunteers"].length + 1}`,
+      `UPDATE events SET ${columnsToUpdate(["name", "description", "endsat", "acceptvolunteers"])} WHERE id=$${["name", "description", "endsat", "acceptvolunteers"].length + 1}`,
       [eventInfo.name, eventInfo.description, eventInfo.endsat, eventInfo.acceptvolunteers, eventId]
     );
   }

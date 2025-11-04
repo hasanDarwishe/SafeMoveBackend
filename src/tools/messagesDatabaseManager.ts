@@ -55,7 +55,7 @@ export class MessagesDatabaseManager {
       FROM volunteer_requests vr
       INNER JOIN events ON vr.event = events.id
       INNER JOIN "user" ON events.organizer = "user".id
-      WHERE vr.volunteer = $1 AND vr.verified = TRUE AND "user".actor = 'organizer' AND events."endsAt" > $2`,
+      WHERE vr.volunteer = $1 AND vr.verified = TRUE AND "user".actor = 'organizer' AND events."endsat" > $2`,
       [volunteer, now]
     );
   }
@@ -68,7 +68,7 @@ export class MessagesDatabaseManager {
       FROM volunteer_requests vr
       INNER JOIN events ON vr.event = events.id
       INNER JOIN "user" ON vr.volunteer = "user".id
-      WHERE events.organizer = $1 AND vr.verified = TRUE AND "user".actor = 'volunteer' AND events."endsAt" > $2`,
+      WHERE events.organizer = $1 AND vr.verified = TRUE AND "user".actor = 'volunteer' AND events."endsat" > $2`,
       [organiser, now]
     );
   }

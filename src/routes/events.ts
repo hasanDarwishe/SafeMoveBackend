@@ -12,7 +12,7 @@ const eventsManager = new EventsManager();
 // Add a new event:
 app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
   interface RequestBody {
-    eventInfo: Omit<EventInfo, "endsAt" | "createdAt" | "organizer"> & {endsAt: string};
+    eventInfo: Omit<EventInfo, "endsat" | "createdat" | "organizer"> & {endsAt: string};
     sections : Omit<SectionInfo, "event">[];
   };
   const data = req.body as RequestBody;
@@ -82,7 +82,7 @@ app.post("/add", authenticationMiddleware(["organizer"]), async (req, res) => {
 // Editing an event
 app.post("/edit/:id", authenticationMiddleware(["organizer"]), async (req, res) => {
   interface RequestBody {
-    eventInfo: Omit<EventInfo, "endsAt" | "createdat"> & {endsAt: string};
+    eventInfo: Omit<EventInfo, "endsat" | "createdat"> & {endsAt: string};
     sections : (Omit<SectionInfo, "event"> & {id?: string | number})[];
   };
 
