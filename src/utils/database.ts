@@ -1,45 +1,34 @@
-import mysql2 from "mysql2";
-import { createClient } from '@supabase/supabase-js'
+// import mysql2 from "mysql2";
+// import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
+// const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
 
 // const pool = mysql2.createPool({
-//   user: "if0_40324273",
-//   password: "hasandarwish",
-//   database: "if0_40324273_safe_move",
+//   user: "root",
+//   password: "",
+//   database: "safeMove",
 //   charset: "utf8mb4",
-//   host: "sql100.infinityfree.com",
+//   host: "localhost",
 //   connectTimeout: 10_000,
 //   multipleStatements: true
-// })
-
-const pool = mysql2.createPool({
-  user: "root",
-  password: "",
-  database: "safeMove",
-  charset: "utf8mb4",
-  host: "localhost",
-  connectTimeout: 10_000,
-  multipleStatements: true
-});
-
-// connection.connect((err) => {
-//   if(err) {
-//     console.error("Error connecting to database;", err);
-//   }
-//   else {
-//     console.log("Connected to database successfully! Thread ID:", connection.threadId);
-//   }
 // });
 
-pool.on('connection', (connection) => {
-  console.log('New database connection established! thread ID:', connection.threadId);
+
+import { Pool } from 'pg'
+
+// Direct PostgreSQL connection
+const pool = new Pool({
+  connectionString: process.env.SUPABASE_DB_URL,
+  connectionTimeoutMillis: 10_000,
+  ssl: { rejectUnauthorized: false }
+});
+
+pool.on("connect", (client) => {
+  console.log(client);
 });
 
 pool.on('error', (err) => {
   console.error('Database pool error:', err);
 });
 
-const db = pool;
-
-export default db;
+export default pool;
